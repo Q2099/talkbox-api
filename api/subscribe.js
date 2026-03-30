@@ -1,3 +1,4 @@
+// api/subscribe.js
 export default async function handler(req, res) {
   if (req.method !== "POST") {
     return res.status(405).json({ success: false, message: "Method not allowed" });
@@ -7,15 +8,19 @@ export default async function handler(req, res) {
   if (!email) return res.status(400).json({ success: false, message: "Email required" });
 
   try {
+    const user = process.env.TALKBOX_USER;
+    const pass = process.env.TALKBOX_PASS;
+    const auth = Buffer.from(`${user}:${pass}`).toString("base64");
+
     const response = await fetch(
       "https://talkbox.impactapp.com.au/service/v1/contacts",
       {
         method: "POST",
         headers: {
-          Authorization: `Bearer ${process.env.TALKBOX_API_KEY}`,
-          "Content-Type": "application/json"
+          Authorization: `Basic ${auth}`,
+          "Content-Type": "application/json",
         },
-        body: JSON.stringify({ email })
+        body: JSON.stringify({ email }),
       }
     );
 
