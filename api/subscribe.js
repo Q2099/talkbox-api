@@ -1,16 +1,34 @@
 // api/subscribe.js
 export default async function handler(req, res) {
+  // Only allow POST
   if (req.method !== "POST") {
     return res.status(405).json({ success: false, message: "Method not allowed" });
   }
 
   const { email } = req.body;
-  if (!email) return res.status(400).json({ success: false, message: "Email required" });
+
+  // Validate email
+  if (!email) {
+    console.error("No email provided");
+    return res.status(400).json({ success: false, message: "Email is required" });
+  }
+
+  // Get TalkBox credentials from environment variables
+  const user = process.env.TALKBOX_USER;
+  const pass = process.env.TALKBOX_PASS;
+
+  if (!user || !pass) {
+    console.error("TALKBOX_USER or TALKBOX_PASS environment variable missing");
+    return res.status(500).json({
+      success: false,
+      message: "Server configuration error: missing credentials"
+    });
+  }
+
+  const auth = Buffer.from(`${user}:${pass}`).toString("base64");
 
   try {
-    const user = process.env.TALKBOX_USER;
-    const pass = process.env.TALKBOX_PASS;
-    const auth = Buffer.from(`${user}:${pass}`).toString("base64");
+    console.log("Sending request to TalkBox for email:", email);
 
     const response = await fetch(
       "https://talkbox.impactapp.com.au/service/v1/contacts",
@@ -18,19 +36,22 @@ export default async function handler(req, res) {
         method: "POST",
         headers: {
           Authorization: `Basic ${auth}`,
-          "Content-Type": "application/json",
+          "Content-Type": "application/json"
         },
-        body: JSON.stringify({ email }),
+        body: JSON.stringify({ email })
       }
     );
 
     if (!response.ok) {
       const errorText = await response.text();
-      throw new Error(errorText);
+      console.error("TalkBox API responded with error:", errorText);
+      return res.status(response.status).json({ success: false, message: errorText });
     }
 
-    res.status(200).json({ success: true });
+    console.log("TalkBox contact added/updated successfully:", email);
+    return res.status(200).json({ success: true });
   } catch (err) {
-    res.status(400).json({ success: false, message: err.message });
+    console.error("Function execution error:", err);
+    return res.status(500).json({ success: false, message: "Internal server error" });
   }
 }
