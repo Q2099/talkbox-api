@@ -49,7 +49,7 @@ export default async function handler(req, res) {
     console.log("Sending request to TalkBox for email:", email);
 
     const response = await fetch(
-      "https://talkbox.impactapp.com.au/service/v1/contacts",
+      "https://talkbox.impactapp.com.au/service/v1/contact/create_or_update",
       {
         method: "POST",
         headers: {
