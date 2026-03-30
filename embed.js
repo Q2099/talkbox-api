@@ -9,6 +9,7 @@
   const container = document.createElement("div");
   container.innerHTML = `
     <style>
+      form.tb-form {display: flex;}
       .tb-form-container { font-family: Arial,sans-serif; max-width:400px;margin:20px auto;text-align:center; }
       .tb-form-container h2 { margin-bottom:10px; }
       .tb-form-container input { padding:10px;width:70%;margin-right:5px; }
