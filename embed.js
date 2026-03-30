@@ -60,15 +60,15 @@
         popup.style.display = "flex";
         form.reset();
 
-        // Fire Meta Pixel event if fbq exists
+        // Fire Meta Pixel CompleteRegistration
         if (typeof fbq === "function") {
           fbq("track", "CompleteRegistration", { email });
         }
       } else {
-        alert(result.message || "Error submitting the form");
+        alert("Error: " + (result.message || "Unknown server error"));
       }
     } catch (err) {
-      alert("Network error");
+      alert("Network error: " + err.message);
     } finally {
       submitBtn.disabled = false;
       submitBtn.textContent = "Subscribe";
