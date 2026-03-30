@@ -1,19 +1,34 @@
 // api/subscribe.js
 export default async function handler(req, res) {
+  // ---------------------------
+  // CORS headers
+  // ---------------------------
+  res.setHeader("Access-Control-Allow-Origin", "*"); // allow all origins; change to your domain if needed
+  res.setHeader("Access-Control-Allow-Methods", "POST, OPTIONS");
+  res.setHeader("Access-Control-Allow-Headers", "Content-Type");
+
+  // Handle preflight requests
+  if (req.method === "OPTIONS") {
+    return res.status(200).end();
+  }
+
   // Only allow POST
   if (req.method !== "POST") {
     return res.status(405).json({ success: false, message: "Method not allowed" });
   }
 
+  // ---------------------------
+  // Validate request
+  // ---------------------------
   const { email } = req.body;
-
-  // Validate email
   if (!email) {
-    console.error("No email provided");
+    console.error("No email provided in request body");
     return res.status(400).json({ success: false, message: "Email is required" });
   }
 
-  // Get TalkBox credentials from environment variables
+  // ---------------------------
+  // Get TalkBox credentials
+  // ---------------------------
   const user = process.env.TALKBOX_USER;
   const pass = process.env.TALKBOX_PASS;
 
@@ -27,6 +42,9 @@ export default async function handler(req, res) {
 
   const auth = Buffer.from(`${user}:${pass}`).toString("base64");
 
+  // ---------------------------
+  // Send request to TalkBox
+  // ---------------------------
   try {
     console.log("Sending request to TalkBox for email:", email);
 
